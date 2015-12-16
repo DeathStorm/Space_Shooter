@@ -8,16 +8,17 @@ public class Steering : MonoBehaviour
     // --- Component Variables
     KeyControl kControl;
     GameObject weaponPosition;
-    AudioSource audioSource;
-    //Animator anim;
+    AudioSource soundSource;
+    AmmoProperties ammoProps;
 
     //
     // --- Public Variables
     public GameObject ammo1;
     public AudioClip ammo1Shot;
+    public AudioClip deadSound;
     public float movingSpeed = 1f;
     public float fadeDistance = 1f;
-    public float ammoSpeed;
+    public float ammoSpeed = 1.5f;
 
     // 
     // --- Private Variables
@@ -43,7 +44,7 @@ public class Steering : MonoBehaviour
         GameObject keyControlObject = GameObject.Find("GamePropertiesContainer");
         kControl = keyControlObject.GetComponent<KeyControl>();
         weaponPosition = this.gameObject.transform.FindChild("WeaponPosition").gameObject;
-        audioSource = this.GetComponent<AudioSource>();
+        soundSource = this.GetComponent<AudioSource>();
 
         LoadControls();
         fade = fadeDistance;
@@ -174,15 +175,17 @@ public class Steering : MonoBehaviour
     {
         if(Input.GetKeyDown(shot))
         {
-            audioSource.PlayOneShot(ammo1Shot);
+            soundSource.PlayOneShot(ammo1Shot);
             
             float yAlt = weaponPosition.transform.position.y;
             Vector3 newPowPosition = new Vector3(weaponPosition.transform.position.x, yAlt, weaponPosition.transform.position.z);
-            GameObject newPow = (GameObject)GameObject.Instantiate(ammo1, newPowPosition, Quaternion.identity);
+            GameObject newShot = (GameObject)GameObject.Instantiate(ammo1, newPowPosition, Quaternion.identity);
+            ammoProps = newShot.GetComponent<AmmoProperties>();
 
+            ammoProps.target = "Enemy";
             //Debug.Log(shotStartObject.transform.position);
 
-            Rigidbody2D newPowRigid = newPow.GetComponent<Rigidbody2D>();
+            Rigidbody2D newPowRigid = newShot.GetComponent<Rigidbody2D>();
             newPowRigid.velocity = new Vector3(0f, ammoSpeed, 0);
 
         }
@@ -190,5 +193,6 @@ public class Steering : MonoBehaviour
     
     
     } // END Attack
+
 
 } // END Class

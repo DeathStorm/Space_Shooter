@@ -13,12 +13,13 @@ public class AmmoProperties : MonoBehaviour {
     public float flyingSpeed;
     public float flyingDistance;
     public int damage;
+    public string target = "";
 
     //
     // --- Private Variables
     bool isFlying = false;
     float flyDistance;              // Zurückgelegte Distanz
-
+    
 	//
     // ----- Methods
 	void Start () 
@@ -55,10 +56,9 @@ public class AmmoProperties : MonoBehaviour {
 
     void OnTriggerEnter2D(Collider2D coll)
     {
-        if (coll.tag == "Enemy")
+        if (coll.tag == target)
         {
-
-            //  DestroyThisInstance();
+                        
             coll.gameObject.SendMessage("SetDamage", damage, SendMessageOptions.DontRequireReceiver);
             DestroyThisAmmo();
         }
