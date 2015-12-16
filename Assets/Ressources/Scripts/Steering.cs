@@ -7,13 +7,17 @@ public class Steering : MonoBehaviour
     //
     // --- Component Variables
     KeyControl kControl;
+    GameObject weaponPosition;
+    AudioSource audioSource;
     //Animator anim;
 
     //
     // --- Public Variables
+    public GameObject ammo1;
+    public AudioClip ammo1Shot;
     public float movingSpeed = 1f;
-
-
+    public float fadeDistance = 1f;
+    public float ammoSpeed;
 
     // 
     // --- Private Variables
@@ -23,6 +27,9 @@ public class Steering : MonoBehaviour
     KeyCode right;// = KeyCode.D;
 
     KeyCode shot; // = KeyCode.Space;
+
+    float fade;
+
 
     //enum DIRECTION {Up, Down, Left, Right};
     int direction = 0; // 0 - default | 1 - Up | 2 - Right | 3 - Down | 4 - Left
@@ -35,14 +42,19 @@ public class Steering : MonoBehaviour
     {
         GameObject keyControlObject = GameObject.Find("GamePropertiesContainer");
         kControl = keyControlObject.GetComponent<KeyControl>();
+        weaponPosition = this.gameObject.transform.FindChild("WeaponPosition").gameObject;
+        audioSource = this.GetComponent<AudioSource>();
 
         LoadControls();
+        fade = fadeDistance;
     } // END Start
 
     void Update()
     {
 
         Move();
+        MoveFade();
+        Attack();
         // Moving
 
     } // END Update
@@ -69,12 +81,14 @@ public class Steering : MonoBehaviour
 
             yOldPosition += movingSpeed * Time.deltaTime;
             direction = 1;
+            fade = fadeDistance;
         }
         if (Input.GetKey(right) == true)
         {
 
             xOldPosition += movingSpeed * Time.deltaTime;
             direction = 2;
+            fade = fadeDistance;
         }
 
         if (Input.GetKey(down) == true)
@@ -82,65 +96,99 @@ public class Steering : MonoBehaviour
 
             yOldPosition -= movingSpeed * Time.deltaTime;
             direction = 3;
+            fade = fadeDistance;
         }
         if (Input.GetKey(left) == true)
         {
 
             xOldPosition -= movingSpeed * Time.deltaTime;
             direction = 4;
+            fade = fadeDistance;
         }
 
+        Vector2 newPosition = new Vector2(xOldPosition, yOldPosition);
+        this.transform.position = newPosition;
+ 
 
+    } // END Move
 
+    void MoveFade()
+    {
 
-        if (Input.anyKey != true)
+        float xOldPosition = this.transform.position.x;
+        float yOldPosition = this.transform.position.y;
+
+        if (Input.anyKey != true && fade > 0f)
         {
 
             if (direction > 0)
             {
 
-
                 switch (direction)
                 {
                     case 1:
-                      //  Debug.Log("Up");
+                            yOldPosition += 1 * Time.deltaTime;
+                            Vector2 fadeUp = new Vector2(xOldPosition, yOldPosition);
+                            this.transform.position = fadeUp;
 
-
-                        //for (int i = 0; i > 50; i++)
-                        //{
-
-                        //    yOldPosition += (i / 2) * Time.deltaTime;
-                        //    Vector2 fadeUp = new Vector2(xOldPosition, yOldPosition);
-                        //    this.transform.position = fadeUp;
-                        
-                        //}
-
+                            fade -= 1 * Time.deltaTime;
                             break;
                     case 2:
-                        break;
+                            xOldPosition += 1 * Time.deltaTime;
+                            Vector2 fadeRight = new Vector2(xOldPosition, yOldPosition);
+                            this.transform.position = fadeRight;
+
+                            fade -= 1 * Time.deltaTime;
+                            break;
                     case 3:
-                        break;
+                            yOldPosition -= 1 * Time.deltaTime;
+                            Vector2 fadeDown = new Vector2(xOldPosition, yOldPosition);
+                            this.transform.position = fadeDown;
+
+                            fade -= 1 * Time.deltaTime;
+                            break;
                     case 4:
-                        break;
+                            xOldPosition -= 1 * Time.deltaTime;
+                            Vector2 fadeLeft = new Vector2(xOldPosition, yOldPosition);
+                            this.transform.position = fadeLeft;
+
+                            fade -= 1 * Time.deltaTime;
+                            break;
 
                 }
 
-                //direction = 0;
+                if (fade <= 0)
+                {
+                    direction = 0;
+                }
             }
             else
             {
-                
-               
+
             }
+        }
+      
+    } // END MoveFade
+
+    void Attack()
+    {
+        if(Input.GetKeyDown(shot))
+        {
+            audioSource.PlayOneShot(ammo1Shot);
+            
+            float yAlt = weaponPosition.transform.position.y;
+            Vector3 newPowPosition = new Vector3(weaponPosition.transform.position.x, yAlt, weaponPosition.transform.position.z);
+            GameObject newPow = (GameObject)GameObject.Instantiate(ammo1, newPowPosition, Quaternion.identity);
+
+            //Debug.Log(shotStartObject.transform.position);
+
+            Rigidbody2D newPowRigid = newPow.GetComponent<Rigidbody2D>();
+            newPowRigid.velocity = new Vector3(0f, ammoSpeed, 0);
 
         }
-
-        Vector2 newPosition = new Vector2(xOldPosition, yOldPosition);
-        this.transform.position = newPosition;
-
-
         
-
-    } // END Move
+    
+    
+    } // END Attack
 
 } // END Class
