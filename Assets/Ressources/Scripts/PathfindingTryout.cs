@@ -88,11 +88,11 @@ public class PathfindingTryout : MonoBehaviour {
         }
         else
         {
-            Debug.Log("3");
+            //Debug.Log("3");
             if (currentWaypoint < waypointsCount)
             {
 
-                Debug.Log("4"); 
+                //Debug.Log("4"); 
                 currentWaypoint++;
             }
             else { }

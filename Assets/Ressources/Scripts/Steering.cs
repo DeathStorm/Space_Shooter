@@ -175,7 +175,7 @@ public class Steering : MonoBehaviour
 
     void Attack()
     {
-        if(Input.GetKeyDown(shot))
+        if(Input.GetKey(shot))
         {
             soundSource.PlayOneShot(ammo1Shot);
             
