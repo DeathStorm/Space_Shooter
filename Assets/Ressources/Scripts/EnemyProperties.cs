@@ -10,6 +10,7 @@ public class EnemyProperties : MonoBehaviour {
     AmmoProperties ammoProp;
     GameObject ammoHandler;
     Rigidbody2D rBody;
+    Animator anim;
     //
     // --- Public Variables
     public GameObject ammo;
@@ -30,7 +31,7 @@ public class EnemyProperties : MonoBehaviour {
     int direction = 0;
     float directionCounter = 3f;
     float directionCounterSet;
-
+    bool started = false;
 
 	//
     // ----- Methods
@@ -40,6 +41,7 @@ public class EnemyProperties : MonoBehaviour {
         soundSource = this.GetComponent<AudioSource>();
         ammoHandler = GameObject.Find("AmmoHandler");
         rBody = this.GetComponent<Rigidbody2D>();
+        anim = this.GetComponent<Animator>();
 
         SetDirectionCounterTime();
         nextAttack = nextAttackIn;
@@ -48,6 +50,12 @@ public class EnemyProperties : MonoBehaviour {
 	
 	void Update ()
     {
+
+        if (started == false)
+        {
+            anim.Play("Enemy_FlyIn");
+            //started = true;
+        }
 
         if (health <= 0)
         {
@@ -87,6 +95,18 @@ public class EnemyProperties : MonoBehaviour {
 
 
 	} // END Update
+
+    void SetStartedTrue(string state)
+    {
+
+        if (state == "true")
+        {
+            started = true;
+            anim.Play("Idle");
+        }
+
+    } // END SetStartedTrue
+
 
     void SetDamage(int damage)
     {
