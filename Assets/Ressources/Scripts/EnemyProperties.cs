@@ -8,6 +8,8 @@ public class EnemyProperties : MonoBehaviour {
     GameObject weaponPosition;
     AudioSource soundSource;
     AmmoProperties ammoProp;
+    GameObject ammoHandler;
+    Rigidbody2D rBody;
     //
     // --- Public Variables
     public GameObject ammo;
@@ -16,17 +18,18 @@ public class EnemyProperties : MonoBehaviour {
     public int health = 100;
     public int shield = 100;
     public float ammoSpeed = 1.1f;
-    public float shotFrequency = 4f;
-
+    public float shotFrequencyMin = 1.5f;
+    public float shotFrequencyMax = 3.0f;
+    public float enemySpeed = 1f;
+    public float directionCounterMin = 1f;
+    public float directionCounterMax = 3f;
     //
     // --- Private Variables
     float nextAttack;
-
-
-
-
-
-
+    float nextAttackIn = 3f;
+    int direction = 0;
+    float directionCounter = 3f;
+    float directionCounterSet;
 
 
 	//
@@ -35,7 +38,11 @@ public class EnemyProperties : MonoBehaviour {
     {
         weaponPosition = this.transform.FindChild("WeaponPosition").gameObject;
         soundSource = this.GetComponent<AudioSource>();
-        nextAttack = shotFrequency;
+        ammoHandler = GameObject.Find("AmmoHandler");
+        rBody = this.GetComponent<Rigidbody2D>();
+
+        SetDirectionCounterTime();
+        nextAttack = nextAttackIn;
 	} // END Start
 	
 	
@@ -48,25 +55,36 @@ public class EnemyProperties : MonoBehaviour {
             DestroyThisEnemy();
         }
 
-        if (nextAttack <= shotFrequency)
+        if (nextAttack <= nextAttackIn)
         {
             nextAttack -= 1 * Time.deltaTime;
 
             if (nextAttack <= 0)
             {
                 Attack();
-                nextAttack = shotFrequency;
+
+                float rnd = Random.Range(shotFrequencyMin, shotFrequencyMax);
+                nextAttackIn = rnd;
+                nextAttack = nextAttackIn;
+            }
+        }
+
+
+        if (directionCounter <= directionCounterSet)
+        {
+            directionCounter -= 1 * Time.deltaTime;
+            
+            if (directionCounter <= 0)
+            {
+                int rndDirection = Random.Range(-1, 2);
+                SetDirection(rndDirection);
+
+                SetDirectionCounterTime();
             }
         }
 
 
 
-
-
-        // Shield beschädigen
-        //* Leben abziehen
-        // Zurückschiessen
-        //* Kaputt gehen
 
 	} // END Update
 
@@ -86,6 +104,7 @@ public class EnemyProperties : MonoBehaviour {
 
     void Attack()
     {
+        
 
         soundSource.PlayOneShot(ammoShotSound);
 
@@ -94,10 +113,77 @@ public class EnemyProperties : MonoBehaviour {
         GameObject newShotObject = (GameObject)GameObject.Instantiate(ammo, newShotPosition, Quaternion.identity);
         ammoProp = newShotObject.GetComponent<AmmoProperties>();
         ammoProp.target = "Player";
-        //Debug.Log(shotStartObject.transform.position);
+
+        newShotObject.transform.parent = ammoHandler.transform;
 
         Rigidbody2D newShotRigidBody = newShotObject.GetComponent<Rigidbody2D>();
         newShotRigidBody.velocity = new Vector3(0f, -ammoSpeed, 0);
 
     } // END Attack
+
+    void OnTriggerEnter2D(Collider2D collider)
+    {
+
+        if (collider.tag == "DeadZone")
+        {
+            DestroyThisEnemy();
+        }
+
+        if (collider.tag == "Obstacle")
+        {
+            switch (direction)
+            { 
+                case -1:
+                    SetDirection(1);
+                    break;
+                case 0:
+                    break;
+                case 1:
+                    SetDirection(-1);
+                    break;
+            
+            }
+            
+            //if (direction == -1) { SetDirection(1); }
+            //if (direction == 1) { SetDirection(-1); }
+            ////Debug.Log(collider.tag);
+        }
+
+
+    } // END OnTriggerEnter2D
+
+    void SetDirection(int rndDirection)
+    {
+
+        switch (rndDirection)
+        {
+            case -1:
+                
+                rBody.velocity = new Vector3(-enemySpeed, -enemySpeed, 0f);
+
+                break;
+            case 0:
+                rBody.velocity = new Vector3(0f, -enemySpeed, 0f);
+                break;
+            case 1:
+                rBody.velocity = new Vector3(enemySpeed, -enemySpeed, 0f);
+
+                break;       
+        }
+
+        direction = rndDirection;
+
+
+    } // END SetDirection
+
+    void SetDirectionCounterTime()
+    {
+
+        float rndDirectionTime = Random.Range(directionCounterMin, (directionCounterMax +1f));
+
+        directionCounterSet = rndDirectionTime;
+        directionCounter = rndDirectionTime;
+
+    } // END SetDirectionCounterTime
+
 } // END Class

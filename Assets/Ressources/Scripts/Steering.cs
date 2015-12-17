@@ -10,6 +10,7 @@ public class Steering : MonoBehaviour
     GameObject weaponPosition;
     AudioSource soundSource;
     AmmoProperties ammoProps;
+    GameObject ammoHandler;
 
     //
     // --- Public Variables
@@ -45,6 +46,7 @@ public class Steering : MonoBehaviour
         kControl = keyControlObject.GetComponent<KeyControl>();
         weaponPosition = this.gameObject.transform.FindChild("WeaponPosition").gameObject;
         soundSource = this.GetComponent<AudioSource>();
+        ammoHandler = GameObject.Find("AmmoHandler");
 
         LoadControls();
         fade = fadeDistance;
@@ -181,10 +183,10 @@ public class Steering : MonoBehaviour
             Vector3 newPowPosition = new Vector3(weaponPosition.transform.position.x, yAlt, weaponPosition.transform.position.z);
             GameObject newShot = (GameObject)GameObject.Instantiate(ammo1, newPowPosition, Quaternion.identity);
             ammoProps = newShot.GetComponent<AmmoProperties>();
-
             ammoProps.target = "Enemy";
-            //Debug.Log(shotStartObject.transform.position);
 
+            newShot.transform.parent = ammoHandler.transform;
+            
             Rigidbody2D newPowRigid = newShot.GetComponent<Rigidbody2D>();
             newPowRigid.velocity = new Vector3(0f, ammoSpeed, 0);
 
